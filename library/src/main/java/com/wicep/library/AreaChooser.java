@@ -70,54 +70,6 @@ public class AreaChooser {
     }
 
     /**
-     * 显示
-     */
-    public void show() {
-        if (mAreaChoicePopupwindow != null) {
-            if (!mAreaChoicePopupwindow.isShowing()) {
-                WindowUtil.setWindowOutsideBackground(mData.mActivity, 0.4f);
-                mAreaChoicePopupwindow.showAtLocation(mParentView, Gravity.BOTTOM, 0, 0);
-            }
-            return;
-        }
-
-        final LinearLayout llContent = new LinearLayout(mData.mActivity);
-
-        llContent.setOrientation(LinearLayout.VERTICAL);
-
-        //因为layout_area_choice根节点为merge(为了防止PopupWindow布局失效)所以必须绑定到root布局
-        final View content = LayoutInflater.from(mData.mActivity).inflate(R.layout.layout_area_choice, llContent, true);
-
-        ivCancel = content.findViewById(R.id.iv_cancel);
-        tvProvinceLabel = content.findViewById(R.id.tv_province_label);
-        tvCityLabel = content.findViewById(R.id.tv_city_label);
-        tvCountyLabel = content.findViewById(R.id.tv_county_label);
-        rvAreaList = content.findViewById(R.id.rv_area_list);
-
-        if (mAreaDataList == null) {
-            mAreaDataList = AreaUtil.getAreaLocalData(mData.mActivity);
-        }
-
-        mAdapter = new AreaChooseAdapter(mData.mActivity, mAreaDataList);
-
-        rvAreaList.setLayoutManager(new LinearLayoutManager(mData.mActivity));
-        rvAreaList.setAdapter(mAdapter);
-
-        mAreaChoicePopupwindow = new PopupWindow();
-        mAreaChoicePopupwindow.setContentView(content);
-        mAreaChoicePopupwindow.setWidth(WindowManager.LayoutParams.MATCH_PARENT);
-        mAreaChoicePopupwindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
-        mAreaChoicePopupwindow.setBackgroundDrawable(content.getResources().getDrawable(R.color.white));
-        mAreaChoicePopupwindow.setOutsideTouchable(true);
-        mAreaChoicePopupwindow.setFocusable(true);
-        WindowUtil.setWindowOutsideBackground(mData.mActivity, 0.4f);
-        mAreaChoicePopupwindow.showAtLocation(mParentView, Gravity.BOTTOM, 0, 0);
-
-        initAreaAction();
-
-    }
-
-    /**
      * 初始化处理收货地址选择区域点击事件
      */
     private void initAreaAction() {
@@ -171,7 +123,7 @@ public class AreaChooser {
                     tvCountyLabel.setVisibility(View.GONE);
                     tvProvinceLabel.setText(province.getName());
 
-                    if (cityList == null || cityList.size() == 0) {
+                    if (mData.mLevel == 省 || cityList == null || cityList.size() == 0) {
                         mListener.mOnChooseCompleteListener.onComplete(province, null, null);
 
                         mAreaChoicePopupwindow.dismiss();
@@ -192,7 +144,7 @@ public class AreaChooser {
 
                     tvCityLabel.setText(city.getName());
 
-                    if (countyList == null || countyList.size() == 0) {
+                    if (mData.mLevel == 市 || countyList == null || countyList.size() == 0) {
                         final int provincePosition = mAdapter.getPosition(省);
                         final Province province1 = mAreaDataList.get(provincePosition).getArea();
 
@@ -271,12 +223,90 @@ public class AreaChooser {
     }
 
     /**
+     * 显示
+     */
+    public void show() {
+        if (mAreaChoicePopupwindow != null) {
+            if (!mAreaChoicePopupwindow.isShowing()) {
+                WindowUtil.setWindowOutsideBackground(mData.mActivity, 0.4f);
+                mAreaChoicePopupwindow.showAtLocation(mParentView, Gravity.BOTTOM, 0, 0);
+            }
+            return;
+        }
+
+        final LinearLayout llContent = new LinearLayout(mData.mActivity);
+
+        llContent.setOrientation(LinearLayout.VERTICAL);
+
+        //因为layout_area_choice根节点为merge(为了防止PopupWindow布局失效)所以必须绑定到root布局
+        final View content = LayoutInflater.from(mData.mActivity).inflate(R.layout.layout_area_choice, llContent, true);
+
+        ivCancel = content.findViewById(R.id.iv_cancel);
+        tvProvinceLabel = content.findViewById(R.id.tv_province_label);
+        tvCityLabel = content.findViewById(R.id.tv_city_label);
+        tvCountyLabel = content.findViewById(R.id.tv_county_label);
+        rvAreaList = content.findViewById(R.id.rv_area_list);
+
+        if (mAreaDataList == null) {
+            mAreaDataList = AreaUtil.getAreaLocalData(mData.mActivity);
+        }
+
+        mAdapter = new AreaChooseAdapter(mData.mActivity, mAreaDataList);
+
+        rvAreaList.setLayoutManager(new LinearLayoutManager(mData.mActivity));
+        rvAreaList.setAdapter(mAdapter);
+
+        mAreaChoicePopupwindow = new PopupWindow();
+        mAreaChoicePopupwindow.setContentView(content);
+        mAreaChoicePopupwindow.setWidth(WindowManager.LayoutParams.MATCH_PARENT);
+        mAreaChoicePopupwindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
+        mAreaChoicePopupwindow.setBackgroundDrawable(content.getResources().getDrawable(R.color.white));
+        mAreaChoicePopupwindow.setOutsideTouchable(true);
+        mAreaChoicePopupwindow.setFocusable(true);
+        WindowUtil.setWindowOutsideBackground(mData.mActivity, 0.4f);
+        mAreaChoicePopupwindow.showAtLocation(mParentView, Gravity.BOTTOM, 0, 0);
+
+        initAreaAction();
+
+    }
+
+    /**
      * 隐藏
      */
     public void hide() {
         if (mAreaChoicePopupwindow != null) {
             mAreaChoicePopupwindow.dismiss();
         }
+    }
+
+    /**
+     * 设置省（用于初始化显示）
+     * @param province 省
+     */
+    //TODO 功能待添加
+    private void setArea(@NonNull Province province) {
+
+    }
+
+    /**
+     * 设置省市（用于初始化显示）
+     * @param province 省
+     * @param city 市
+     */
+    //TODO 功能待添加
+    private void setArea(@NonNull Province province, @NonNull City city) {
+
+    }
+
+    /**
+     * 设置省市县（用于初始化显示）
+     * @param province 省
+     * @param city 市
+     * @param county 县
+     */
+    //TODO 功能待添加
+    private void setArea(@NonNull Province province, @NonNull City city, @NonNull County county) {
+
     }
 
     /**
@@ -428,7 +458,7 @@ public class AreaChooser {
     private static class Data {
 
         /** 联动级别 默认3级联动（省市县）*/
-        private int mLevel = 3;
+        private int mLevel = 县;
         /** 主题颜色 默认红色 */
         private int mColor = Color.parseColor("#FF0000");
         /** Context */
