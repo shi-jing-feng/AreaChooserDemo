@@ -11,9 +11,7 @@ import com.sjf.library.entity.City;
 import com.sjf.library.entity.County;
 import com.sjf.library.entity.Province;
 
-import static com.wicep.library.constant.Constant.县;
-import static com.wicep.library.constant.Constant.市;
-import static com.wicep.library.constant.Constant.省;
+import static com.sjf.library.constant.Constant.COUNTY;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         findViewById(R.id.btn_show).setOnClickListener(v -> {
             final AreaChooser areaChooser = new AreaChooser.Builder(this)
-                    .setLevel(县)
+                    .setLevel(COUNTY)
                     .setOnChooseCompleteListener((@Nullable Province province, @Nullable City city, @Nullable County county) -> {
                         Log.e("测试", "省: " + (province == null ? "" : province.getName()));
                         Log.e("测试", "市: " + (city == null ? "" : city.getName()));

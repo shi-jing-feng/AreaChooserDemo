@@ -1,4 +1,4 @@
-package com.wicep.library;
+package com.sjf.library;
 
 import android.app.Activity;
 import android.graphics.Color;
@@ -17,21 +17,21 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.wicep.library.adapter.AreaChooseAdapter;
-import com.wicep.library.entity.Area;
-import com.wicep.library.entity.City;
-import com.wicep.library.entity.County;
-import com.wicep.library.entity.Province;
-import com.wicep.library.listener.OnChooseCompleteListener;
-import com.wicep.library.listener.OnChooseListener;
-import com.wicep.library.util.AreaUtil;
-import com.wicep.library.util.WindowUtil;
+import com.sjf.library.adapter.AreaChooseAdapter;
+import com.sjf.library.entity.Area;
+import com.sjf.library.entity.City;
+import com.sjf.library.entity.County;
+import com.sjf.library.entity.Province;
+import com.sjf.library.listener.OnChooseCompleteListener;
+import com.sjf.library.listener.OnChooseListener;
+import com.sjf.library.util.AreaUtil;
+import com.sjf.library.util.WindowUtil;
 
 import java.util.List;
 
-import static com.wicep.library.constant.Constant.县;
-import static com.wicep.library.constant.Constant.市;
-import static com.wicep.library.constant.Constant.省;
+import static com.sjf.library.constant.Constant.COUNTY;
+import static com.sjf.library.constant.Constant.CITY;
+import static com.sjf.library.constant.Constant.PROVINCE;
 
 /**
  * Function: 区域选择器
@@ -60,7 +60,7 @@ public class AreaChooser {
     /** 区域数据 */
     private List<Area> mAreaDataList;
     /** 地区级别 */
-    private int mAreaLevel = 省;
+    private int mAreaLevel = PROVINCE;
 
     public AreaChooser(@NonNull Data data, @NonNull Listener listener) {
         this.mData = data;
@@ -78,29 +78,29 @@ public class AreaChooser {
             final List<Area> provinceList = mAreaDataList;
 
             setSelectedStatus(tvProvinceLabel);
-            mAdapter.setData(provinceList, mAreaLevel = 省);
+            mAdapter.setData(provinceList, mAreaLevel = PROVINCE);
             mAdapter.notifyDataSetChanged();
         });
         //设置为市级数据
         tvCityLabel.setOnClickListener(view -> {
-            final int provincePosition = mAdapter.getPosition(省);
+            final int provincePosition = mAdapter.getPosition(PROVINCE);
             final Province province = mAreaDataList.get(provincePosition).getArea();
             final List<Area> cityList = province.getCityList();
 
             setSelectedStatus(tvCityLabel);
-            mAdapter.setData(cityList, mAreaLevel = 市);
+            mAdapter.setData(cityList, mAreaLevel = CITY);
             mAdapter.notifyDataSetChanged();
         });
         //设置县级数据
         tvCountyLabel.setOnClickListener(view -> {
-            final int provincePosition = mAdapter.getPosition(省);
-            final int cityPosition = mAdapter.getPosition(市);
+            final int provincePosition = mAdapter.getPosition(PROVINCE);
+            final int cityPosition = mAdapter.getPosition(CITY);
             final Province province = mAreaDataList.get(provincePosition).getArea();
             final City city = province.getCityList().get(cityPosition).getArea();
             final List<Area> countyList = city.getCountyList();
 
             setSelectedStatus(tvCountyLabel);
-            mAdapter.setData(countyList, mAreaLevel = 县);
+            mAdapter.setData(countyList, mAreaLevel = COUNTY);
             mAdapter.notifyDataSetChanged();
         });
         //取消
@@ -115,7 +115,7 @@ public class AreaChooser {
 
         mAdapter.setOnItemEventListener((View view, Object data, int position, int flag) -> {
             switch (mAreaLevel) {
-                case 省:
+                case PROVINCE:
                     final Province province = (Province) data;
                     final List<Area> cityList = province.getCityList();
 
@@ -123,7 +123,7 @@ public class AreaChooser {
                     tvCountyLabel.setVisibility(View.GONE);
                     tvProvinceLabel.setText(province.getName());
 
-                    if (mData.mLevel == 省 || cityList == null || cityList.size() == 0) {
+                    if (mData.mLevel == PROVINCE || cityList == null || cityList.size() == 0) {
                         mListener.mOnChooseCompleteListener.onComplete(province, null, null);
 
                         mAreaChoicePopupwindow.dismiss();
@@ -135,17 +135,17 @@ public class AreaChooser {
                     tvCityLabel.setVisibility(View.VISIBLE);
 
                     //更新数据
-                    mAdapter.setData(province.getCityList(), mAreaLevel = 市);
+                    mAdapter.setData(province.getCityList(), mAreaLevel = CITY);
                     mAdapter.notifyDataSetChanged();
                     break;
-                case 市:
+                case CITY:
                     final City city = (City) data;
                     final List<Area> countyList = city.getCountyList();
 
                     tvCityLabel.setText(city.getName());
 
-                    if (mData.mLevel == 市 || countyList == null || countyList.size() == 0) {
-                        final int provincePosition = mAdapter.getPosition(省);
+                    if (mData.mLevel == CITY || countyList == null || countyList.size() == 0) {
+                        final int provincePosition = mAdapter.getPosition(PROVINCE);
                         final Province province1 = mAreaDataList.get(provincePosition).getArea();
 
                         mListener.mOnChooseCompleteListener.onComplete(province1, city, null);
@@ -160,17 +160,17 @@ public class AreaChooser {
                     tvCountyLabel.setVisibility(View.VISIBLE);
 
                     //更新数据
-                    mAdapter.setData(countyList, mAreaLevel = 县);
+                    mAdapter.setData(countyList, mAreaLevel = COUNTY);
                     mAdapter.notifyDataSetChanged();
                     break;
-                case 县:
+                case COUNTY:
                     final County county = (County) data;
 
                     tvCountyLabel.setText(county.getName());
 
                     if (mListener.mOnChooseCompleteListener != null) {
-                        final int provincePosition = mAdapter.getPosition(省);
-                        final int cityPosition = mAdapter.getPosition(市);
+                        final int provincePosition = mAdapter.getPosition(PROVINCE);
+                        final int cityPosition = mAdapter.getPosition(CITY);
                         final Province province1 = mAreaDataList.get(provincePosition).getArea();
                         final City city1 = province1.getCityList().get(cityPosition).getArea();
 
@@ -217,7 +217,7 @@ public class AreaChooser {
         setSelectedStatus(tvProvinceLabel);
 
         //更新数据
-        mAdapter.setData(mAreaDataList, mAreaLevel = 省);
+        mAdapter.setData(mAreaDataList, mAreaLevel = PROVINCE);
         mAdapter.notifyDataSetChanged();
         mAdapter.reset();
     }
@@ -318,11 +318,11 @@ public class AreaChooser {
         List<Area> areaList = null;
 
         switch (areaLevel) {
-            case 省:
+            case PROVINCE:
                 areaList = mAreaDataList;
                 break;
-            case 市:
-                final int provincePosition1 = mAdapter.getPosition(省);
+            case CITY:
+                final int provincePosition1 = mAdapter.getPosition(PROVINCE);
 
                 if (provincePosition1 > -1) {
                     final Province province = mAreaDataList.get(provincePosition1).getArea();
@@ -330,12 +330,12 @@ public class AreaChooser {
                     areaList = province.getCityList();
                 }
                 break;
-            case 县:
-                final int provincePosition2 = mAdapter.getPosition(省);
+            case COUNTY:
+                final int provincePosition2 = mAdapter.getPosition(PROVINCE);
 
                 if (provincePosition2 > -1) {
                     final Province province = mAreaDataList.get(provincePosition2).getArea();
-                    final int cityPosition = mAdapter.getPosition(市);
+                    final int cityPosition = mAdapter.getPosition(CITY);
 
                     if (cityPosition > -1) {
                         final City city = province.getCityList().get(cityPosition).getArea();
@@ -386,7 +386,7 @@ public class AreaChooser {
          * @param level 级别
          * @return Builder
          */
-        public Builder setLevel(@IntRange(from = 省, to = 县) int level) {
+        public Builder setLevel(@IntRange(from = PROVINCE, to = COUNTY) int level) {
             this.mData.mLevel = level;
             return this;
         }
@@ -458,7 +458,7 @@ public class AreaChooser {
     private static class Data {
 
         /** 联动级别 默认3级联动（省市县）*/
-        private int mLevel = 县;
+        private int mLevel = COUNTY;
         /** 主题颜色 默认红色 */
         private int mColor = Color.parseColor("#FF0000");
         /** Context */
