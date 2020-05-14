@@ -4,14 +4,19 @@ import com.google.gson.annotations.SerializedName;
 
 /**
  * Function: 县实体类
- * Created by shijingfeng on 19-1-17.
+ *
+ * @author shijingfeng
+ * @date 19-1-17
  */
 public class County extends Area {
 
+    /** 县邮政编码 */
     @SerializedName("code")
-    private String code;
+    private String code = "";
+
+    /** 县名称 */
     @SerializedName("name")
-    private String name;
+    private String name = "";
 
     public String getCode() {
         return code;

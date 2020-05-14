@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.IntRange;
@@ -18,15 +19,20 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sjf.library.adapter.AreaChooseAdapter;
+import com.sjf.library.annotation.AreaLevel;
 import com.sjf.library.entity.Area;
 import com.sjf.library.entity.City;
 import com.sjf.library.entity.County;
 import com.sjf.library.entity.Province;
+import com.sjf.library.global.Global;
 import com.sjf.library.listener.OnChooseCompleteListener;
 import com.sjf.library.listener.OnChooseListener;
 import com.sjf.library.util.AreaUtil;
 import com.sjf.library.util.WindowUtil;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 
 import static com.sjf.library.constant.Constant.COUNTY;
@@ -248,7 +254,13 @@ public class AreaChooser {
         rvAreaList = content.findViewById(R.id.rv_area_list);
 
         if (mAreaDataList == null) {
-            mAreaDataList = AreaUtil.getAreaLocalData(mData.mActivity);
+            try {
+                final InputStream inputStream = mData.mActivity.getAssets().open("json/province_city_county.json");
+
+                mAreaDataList = AreaUtil.getAreaLocalData(inputStream);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         mAdapter = new AreaChooseAdapter(mData.mActivity, mAreaDataList);
@@ -284,8 +296,8 @@ public class AreaChooser {
      * @param province 省
      */
     //TODO 功能待添加
-    private void setArea(@NonNull Province province) {
-
+    private AreaChooser setArea(@NonNull Province province) {
+        return this;
     }
 
     /**
@@ -294,8 +306,8 @@ public class AreaChooser {
      * @param city 市
      */
     //TODO 功能待添加
-    private void setArea(@NonNull Province province, @NonNull City city) {
-
+    private AreaChooser setArea(@NonNull Province province, @NonNull City city) {
+        return this;
     }
 
     /**
@@ -305,8 +317,18 @@ public class AreaChooser {
      * @param county 县
      */
     //TODO 功能待添加
-    private void setArea(@NonNull Province province, @NonNull City city, @NonNull County county) {
+    private AreaChooser setArea(@NonNull Province province, @NonNull City city, @NonNull County county) {
+        return this;
+    }
 
+    /**
+     * 设置邮政编码 (用于初始化显示)
+     * @param postalCode 邮政编码
+     */
+    //TODO 功能待添加
+    private AreaChooser setPostalCode(@NonNull String postalCode) {
+        this.mData.mPostalCode = postalCode;
+        return this;
     }
 
     /**
@@ -356,8 +378,9 @@ public class AreaChooser {
      * @param listener 监听器
      * @return Builder
      */
-    public void setOnChooseCompleteListener(OnChooseCompleteListener listener) {
+    public AreaChooser setOnChooseCompleteListener(OnChooseCompleteListener listener) {
         this.mListener.mOnChooseCompleteListener = listener;
+        return this;
     }
 
     /**
@@ -365,8 +388,9 @@ public class AreaChooser {
      * @param listener 监听器
      * @return Builder
      */
-    public void setOnChooseListener(OnChooseListener listener) {
+    public AreaChooser setOnChooseListener(OnChooseListener listener) {
         this.mListener.mOnChooseListener = listener;
+        return this;
     }
 
     /**
@@ -386,7 +410,7 @@ public class AreaChooser {
          * @param level 级别
          * @return Builder
          */
-        public Builder setLevel(@IntRange(from = PROVINCE, to = COUNTY) int level) {
+        public Builder setLevel(@AreaLevel int level) {
             this.mData.mLevel = level;
             return this;
         }
@@ -398,6 +422,15 @@ public class AreaChooser {
          */
         public Builder setThemeColor(@ColorInt int color) {
             this.mData.mColor = color;
+            return this;
+        }
+
+        /**
+         * 设置邮政编码
+         * @return Builder
+         */
+        public Builder setPostalCode(@NonNull String postalCode) {
+            this.mData.mPostalCode = postalCode;
             return this;
         }
 
@@ -457,12 +490,14 @@ public class AreaChooser {
      */
     private static class Data {
 
-        /** 联动级别 默认3级联动（省市县）*/
-        private int mLevel = COUNTY;
-        /** 主题颜色 默认红色 */
-        private int mColor = Color.parseColor("#FF0000");
         /** Context */
         private Activity mActivity;
+        /** 联动级别 默认3级联动（省市县）*/
+        private @AreaLevel int mLevel = COUNTY;
+        /** 主题颜色 默认红色 */
+        private int mColor = Color.parseColor("#FF0000");
+        /** 邮政编码 */
+        private String mPostalCode;
         /** 省市县数据 */
         private List<Area> mAreaDataList;
 

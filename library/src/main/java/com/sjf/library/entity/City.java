@@ -2,23 +2,31 @@ package com.sjf.library.entity;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Function: 市实体类
- * Created by shijingfeng on 19-1-17.
+ *
+ * @author shijingfeng
+ * @date 19-1-17
  */
 public class City extends Area {
 
+    /** 市邮政编码 */
     @SerializedName("code")
-    private String code;
+    private String code = "";
+
+    /** 市名称 */
     @SerializedName("name")
-    private String name;
+    private String name = "";
+
     /**
+     * 县列表
      * 注意抽象类无法序列化，需自行处理 (参考 {@link com.sjf.library.util.AreaUtil})
      */
     @SerializedName("areaList")
-    private List<Area> countyList;
+    private List<Area> countyList = new ArrayList<>();
 
     public String getCode() {
         return code;
