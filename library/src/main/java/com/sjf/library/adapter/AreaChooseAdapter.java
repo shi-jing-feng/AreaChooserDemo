@@ -1,6 +1,6 @@
 package com.sjf.library.adapter;
 
-import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.sjf.library.AreaChooser;
 import com.sjf.library.R;
 import com.sjf.library.entity.Area;
 import com.sjf.library.entity.City;
@@ -30,7 +31,7 @@ import static com.sjf.library.constant.Constant.PROVINCE;
  */
 public class AreaChooseAdapter extends RecyclerView.Adapter<AreaChooseAdapter.AreaChooseViewHolder> {
 
-    private Context mContext;
+    private AreaChooser.Data mData;
     private List<Area> mDataList;
     private OnItemEventListener mOnItemEventListener;
 
@@ -43,15 +44,15 @@ public class AreaChooseAdapter extends RecyclerView.Adapter<AreaChooseAdapter.Ar
     /** 选中的县的位置 */
     private int mCountyPosition = -1;
 
-    public AreaChooseAdapter(@NonNull Context context, List<Area> dataList) {
-        this.mContext = context;
+    public AreaChooseAdapter(@NonNull AreaChooser.Data data, List<Area> dataList) {
+        this.mData = data;
         this.mDataList = dataList;
     }
 
     @Override
     @NonNull
     public AreaChooseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        final View rootView = LayoutInflater.from(mContext).inflate(R.layout.adapter_item_area_name, parent, false);
+        final View rootView = LayoutInflater.from(mData.mActivity).inflate(R.layout.adapter_item_area_name, parent, false);
 
         return new AreaChooseViewHolder(rootView);
     }
@@ -95,10 +96,10 @@ public class AreaChooseAdapter extends RecyclerView.Adapter<AreaChooseAdapter.Ar
 
         //判断当前显示的位置是否是点击的位置
         if (currentPosition == position) {
-            holder.tvAreaName.setTextColor(mContext.getResources().getColor(R.color.red));
+            holder.tvAreaName.setTextColor(mData.mColor);
             holder.ivAreaSelected.setVisibility(View.VISIBLE);
         } else {
-            holder.tvAreaName.setTextColor(mContext.getResources().getColor(R.color.black));
+            holder.tvAreaName.setTextColor(Color.BLACK);
             holder.ivAreaSelected.setVisibility(View.GONE);
         }
     }

@@ -2,6 +2,10 @@ package com.sjf.library;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,10 +14,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,15 +26,14 @@ import com.sjf.library.entity.Area;
 import com.sjf.library.entity.City;
 import com.sjf.library.entity.County;
 import com.sjf.library.entity.Province;
-import com.sjf.library.global.Global;
 import com.sjf.library.listener.OnChooseCompleteListener;
 import com.sjf.library.listener.OnChooseListener;
 import com.sjf.library.util.AreaUtil;
+import com.sjf.library.util.SizeUtil;
 import com.sjf.library.util.WindowUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.List;
 
 import static com.sjf.library.constant.Constant.COUNTY;
@@ -61,7 +62,7 @@ public class AreaChooser {
     /** Parent View */
     private final View mParentView;
     /** 区域选择 PopupWindow */
-    private PopupWindow mAreaChoicePopupwindow;
+    private PopupWindow mAreaChoicePopupWindow;
     /** 区域选择 适配器 */
     private AreaChooseAdapter mAdapter;
     /** 区域数据 */
@@ -112,10 +113,10 @@ public class AreaChooser {
         });
         //取消
         ivCancel.setOnClickListener(view -> {
-            mAreaChoicePopupwindow.dismiss();
+            mAreaChoicePopupWindow.dismiss();
         });
         //关闭窗口
-        mAreaChoicePopupwindow.setOnDismissListener(() -> {
+        mAreaChoicePopupWindow.setOnDismissListener(() -> {
             WindowUtil.setWindowOutsideBackground(mData.mActivity, 1f);
             reset();
         });
@@ -133,7 +134,7 @@ public class AreaChooser {
                     if (mData.mLevel == PROVINCE || cityList == null || cityList.size() == 0) {
                         mListener.mOnChooseCompleteListener.onComplete(province, null, null);
 
-                        mAreaChoicePopupwindow.dismiss();
+                        mAreaChoicePopupWindow.dismiss();
                         return;
                     }
 
@@ -157,7 +158,7 @@ public class AreaChooser {
 
                         mListener.mOnChooseCompleteListener.onComplete(province1, city, null);
 
-                        mAreaChoicePopupwindow.dismiss();
+                        mAreaChoicePopupWindow.dismiss();
                         return;
                     }
 
@@ -184,7 +185,7 @@ public class AreaChooser {
                         mListener.mOnChooseCompleteListener.onComplete(province1, city1, county);
                     }
 
-                    mAreaChoicePopupwindow.dismiss();
+                    mAreaChoicePopupWindow.dismiss();
                     break;
                 default:
                     break;
@@ -198,34 +199,43 @@ public class AreaChooser {
      * @param areaLevel 区域级别
      */
     private void setSelectedStatus(int areaLevel) {
+        final GradientDrawable gradientDrawable = new GradientDrawable();
+        final LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{gradientDrawable});
+        final int distance = SizeUtil.dp2px(-3F);
+
+        gradientDrawable.setColor(Color.WHITE);
+        gradientDrawable.setStroke(SizeUtil.dp2px(2F), mData.mColor);
+
+        layerDrawable.setLayerInset(0, distance, distance, distance, 0);
+
         switch (areaLevel) {
             case PROVINCE:
-                tvProvinceLabel.setTextColor(mData.mActivity.getResources().getColor(R.color.red));
-                tvProvinceLabel.setBackground(mData.mActivity.getResources().getDrawable(R.drawable.layer_list_underline_red));
+                tvProvinceLabel.setTextColor(mData.mColor);
+                tvProvinceLabel.setBackground(layerDrawable);
 
-                tvCityLabel.setTextColor(mData.mActivity.getResources().getColor(R.color.black));
-                tvCityLabel.setBackground(mData.mActivity.getResources().getDrawable(R.color.white));
-                tvCountyLabel.setTextColor(mData.mActivity.getResources().getColor(R.color.black));
-                tvCountyLabel.setBackground(mData.mActivity.getResources().getDrawable(R.color.white));
+                tvCityLabel.setTextColor(Color.BLACK);
+                tvCityLabel.setBackgroundColor(Color.WHITE);
+                tvCountyLabel.setTextColor(Color.BLACK);
+                tvCountyLabel.setBackgroundColor(Color.WHITE);
                 break;
             case CITY:
-                tvProvinceLabel.setTextColor(mData.mActivity.getResources().getColor(R.color.black));
-                tvProvinceLabel.setBackground(mData.mActivity.getResources().getDrawable(R.color.white));
+                tvProvinceLabel.setTextColor(Color.BLACK);
+                tvProvinceLabel.setBackgroundColor(Color.WHITE);
 
-                tvCityLabel.setTextColor(mData.mActivity.getResources().getColor(R.color.red));
-                tvCityLabel.setBackground(mData.mActivity.getResources().getDrawable(R.drawable.layer_list_underline_red));
+                tvCityLabel.setTextColor(mData.mColor);
+                tvCityLabel.setBackground(layerDrawable);
 
-                tvCountyLabel.setTextColor(mData.mActivity.getResources().getColor(R.color.black));
-                tvCountyLabel.setBackground(mData.mActivity.getResources().getDrawable(R.color.white));
+                tvCountyLabel.setTextColor(Color.BLACK);
+                tvCountyLabel.setBackgroundColor(Color.WHITE);
                 break;
             case COUNTY:
-                tvProvinceLabel.setTextColor(mData.mActivity.getResources().getColor(R.color.black));
-                tvProvinceLabel.setBackground(mData.mActivity.getResources().getDrawable(R.color.white));
-                tvCityLabel.setTextColor(mData.mActivity.getResources().getColor(R.color.black));
-                tvCityLabel.setBackground(mData.mActivity.getResources().getDrawable(R.color.white));
+                tvProvinceLabel.setTextColor(Color.BLACK);
+                tvProvinceLabel.setBackgroundColor(Color.WHITE);
+                tvCityLabel.setTextColor(Color.BLACK);
+                tvCityLabel.setBackgroundColor(Color.WHITE);
 
-                tvCountyLabel.setTextColor(mData.mActivity.getResources().getColor(R.color.red));
-                tvCountyLabel.setBackground(mData.mActivity.getResources().getDrawable(R.drawable.layer_list_underline_red));
+                tvCountyLabel.setTextColor(mData.mColor);
+                tvCountyLabel.setBackground(layerDrawable);
                 break;
             default:
                 break;
@@ -254,10 +264,10 @@ public class AreaChooser {
      * 显示
      */
     public void show() {
-        if (mAreaChoicePopupwindow != null) {
-            if (!mAreaChoicePopupwindow.isShowing()) {
+        if (mAreaChoicePopupWindow != null) {
+            if (!mAreaChoicePopupWindow.isShowing()) {
                 WindowUtil.setWindowOutsideBackground(mData.mActivity, 0.4f);
-                mAreaChoicePopupwindow.showAtLocation(mParentView, Gravity.BOTTOM, 0, 0);
+                mAreaChoicePopupWindow.showAtLocation(mParentView, Gravity.BOTTOM, 0, 0);
             }
             return;
         }
@@ -285,20 +295,21 @@ public class AreaChooser {
             }
         }
 
-        mAdapter = new AreaChooseAdapter(mData.mActivity, mAreaDataList);
+        setSelectedStatus(PROVINCE);
+        mAdapter = new AreaChooseAdapter(mData, mAreaDataList);
 
         rvAreaList.setLayoutManager(new LinearLayoutManager(mData.mActivity));
         rvAreaList.setAdapter(mAdapter);
 
-        mAreaChoicePopupwindow = new PopupWindow();
-        mAreaChoicePopupwindow.setContentView(content);
-        mAreaChoicePopupwindow.setWidth(WindowManager.LayoutParams.MATCH_PARENT);
-        mAreaChoicePopupwindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
-        mAreaChoicePopupwindow.setBackgroundDrawable(content.getResources().getDrawable(R.color.white));
-        mAreaChoicePopupwindow.setOutsideTouchable(true);
-        mAreaChoicePopupwindow.setFocusable(true);
+        mAreaChoicePopupWindow = new PopupWindow();
+        mAreaChoicePopupWindow.setContentView(content);
+        mAreaChoicePopupWindow.setWidth(WindowManager.LayoutParams.MATCH_PARENT);
+        mAreaChoicePopupWindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
+        mAreaChoicePopupWindow.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
+        mAreaChoicePopupWindow.setOutsideTouchable(true);
+        mAreaChoicePopupWindow.setFocusable(true);
         WindowUtil.setWindowOutsideBackground(mData.mActivity, 0.4f);
-        mAreaChoicePopupwindow.showAtLocation(mParentView, Gravity.BOTTOM, 0, 0);
+        mAreaChoicePopupWindow.showAtLocation(mParentView, Gravity.BOTTOM, 0, 0);
 
         initAreaAction();
 
@@ -308,8 +319,8 @@ public class AreaChooser {
      * 隐藏
      */
     public void hide() {
-        if (mAreaChoicePopupwindow != null) {
-            mAreaChoicePopupwindow.dismiss();
+        if (mAreaChoicePopupWindow != null) {
+            mAreaChoicePopupWindow.dismiss();
         }
     }
 
@@ -353,17 +364,6 @@ public class AreaChooser {
                 }
             }
         }
-        return this;
-    }
-
-    /**
-     * 设置邮政编码 (用于初始化显示)
-     * @param postalCode 邮政编码
-     */
-    //TODO 功能待添加
-    public AreaChooser setPostalCode(@NonNull String postalCode) {
-        this.mData.mPostalCode = postalCode;
-
         return this;
     }
 
@@ -546,15 +546,6 @@ public class AreaChooser {
         }
 
         /**
-         * 设置邮政编码
-         * @return Builder
-         */
-        public Builder setPostalCode(@NonNull String postalCode) {
-            this.mData.mPostalCode = postalCode;
-            return this;
-        }
-
-        /**
          * 省市县数据
          * @param areaDataList 数据
          * @return Builder
@@ -608,18 +599,16 @@ public class AreaChooser {
     /**
      * 自定义扩展数据类
      */
-    private static class Data {
+    public static class Data {
 
         /** Context */
-        private Activity mActivity;
+        public Activity mActivity;
         /** 联动级别 默认3级联动（省市县）*/
-        private @AreaLevel int mLevel = COUNTY;
+        public @AreaLevel int mLevel = COUNTY;
         /** 主题颜色 默认红色 */
-        private int mColor = Color.parseColor("#FF0000");
-        /** 邮政编码 */
-        private String mPostalCode;
+        public int mColor = Color.parseColor("#FF0000");
         /** 省市县数据 */
-        private List<Area> mAreaDataList;
+        public List<Area> mAreaDataList;
 
     }
 
