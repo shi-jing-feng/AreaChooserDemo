@@ -15,6 +15,10 @@ import static com.sjf.library.constant.Constant.COUNTY;
 
 public class MainActivity extends AppCompatActivity {
 
+    private Province mCurProvince;
+    private City mCurCity;
+    private County mCurCounty;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,11 +27,16 @@ public class MainActivity extends AppCompatActivity {
             final AreaChooser areaChooser = new AreaChooser.Builder(this)
                     .setLevel(COUNTY)
                     .setOnChooseCompleteListener((@Nullable Province province, @Nullable City city, @Nullable County county) -> {
+                        mCurProvince = province;
+                        mCurCity = city;
+                        mCurCounty = county;
                         Log.e("测试", "省: " + (province == null ? "" : province.getName()));
                         Log.e("测试", "市: " + (city == null ? "" : city.getName()));
                         Log.e("测试", "县: " + (county == null ? "" : county.getName()));
                     })
                     .show();
+
+            areaChooser.setArea(mCurProvince, mCurCity, mCurCounty);
         });
     }
 }

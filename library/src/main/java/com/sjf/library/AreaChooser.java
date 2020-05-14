@@ -38,6 +38,7 @@ import java.util.List;
 import static com.sjf.library.constant.Constant.COUNTY;
 import static com.sjf.library.constant.Constant.CITY;
 import static com.sjf.library.constant.Constant.PROVINCE;
+import static com.sjf.library.constant.Constant.UNKNOWN_AREA_LEVEL;
 
 /**
  * Function: 区域选择器
@@ -83,7 +84,7 @@ public class AreaChooser {
         tvProvinceLabel.setOnClickListener(view -> {
             final List<Area> provinceList = mAreaDataList;
 
-            setSelectedStatus(tvProvinceLabel);
+            setSelectedStatus(PROVINCE);
             mAdapter.setData(provinceList, mAreaLevel = PROVINCE);
             mAdapter.notifyDataSetChanged();
         });
@@ -93,7 +94,7 @@ public class AreaChooser {
             final Province province = mAreaDataList.get(provincePosition).getArea();
             final List<Area> cityList = province.getCityList();
 
-            setSelectedStatus(tvCityLabel);
+            setSelectedStatus(CITY);
             mAdapter.setData(cityList, mAreaLevel = CITY);
             mAdapter.notifyDataSetChanged();
         });
@@ -105,7 +106,7 @@ public class AreaChooser {
             final City city = province.getCityList().get(cityPosition).getArea();
             final List<Area> countyList = city.getCountyList();
 
-            setSelectedStatus(tvCountyLabel);
+            setSelectedStatus(COUNTY);
             mAdapter.setData(countyList, mAreaLevel = COUNTY);
             mAdapter.notifyDataSetChanged();
         });
@@ -137,7 +138,7 @@ public class AreaChooser {
                     }
 
                     tvCityLabel.setText("请选择");
-                    setSelectedStatus(tvCityLabel);
+                    setSelectedStatus(CITY);
                     tvCityLabel.setVisibility(View.VISIBLE);
 
                     //更新数据
@@ -162,7 +163,7 @@ public class AreaChooser {
 
                     tvCityLabel.setText(city.getName());
                     tvCountyLabel.setText("请选择");
-                    setSelectedStatus(tvCountyLabel);
+                    setSelectedStatus(COUNTY);
                     tvCountyLabel.setVisibility(View.VISIBLE);
 
                     //更新数据
@@ -193,21 +194,41 @@ public class AreaChooser {
 
     /**
      * 设置地区选择显示标签颜色和背景
-     * @param view 要突出颜色的View
+     *
+     * @param areaLevel 区域级别
      */
-    private void setSelectedStatus(View view) {
-        final TextView[] views = {tvProvinceLabel, tvCityLabel, tvCountyLabel};
+    private void setSelectedStatus(int areaLevel) {
+        switch (areaLevel) {
+            case PROVINCE:
+                tvProvinceLabel.setTextColor(mData.mActivity.getResources().getColor(R.color.red));
+                tvProvinceLabel.setBackground(mData.mActivity.getResources().getDrawable(R.drawable.layer_list_underline_red));
 
-        if (view != null) {
-            for (TextView v : views) {
-                if (v.getId() == view.getId()) {
-                    v.setTextColor(mData.mActivity.getResources().getColor(R.color.red));
-                    v.setBackground(mData.mActivity.getResources().getDrawable(R.drawable.layer_list_underline_red));
-                } else {
-                    v.setTextColor(mData.mActivity.getResources().getColor(R.color.black));
-                    v.setBackground(mData.mActivity.getResources().getDrawable(R.color.white));
-                }
-            }
+                tvCityLabel.setTextColor(mData.mActivity.getResources().getColor(R.color.black));
+                tvCityLabel.setBackground(mData.mActivity.getResources().getDrawable(R.color.white));
+                tvCountyLabel.setTextColor(mData.mActivity.getResources().getColor(R.color.black));
+                tvCountyLabel.setBackground(mData.mActivity.getResources().getDrawable(R.color.white));
+                break;
+            case CITY:
+                tvProvinceLabel.setTextColor(mData.mActivity.getResources().getColor(R.color.black));
+                tvProvinceLabel.setBackground(mData.mActivity.getResources().getDrawable(R.color.white));
+
+                tvCityLabel.setTextColor(mData.mActivity.getResources().getColor(R.color.red));
+                tvCityLabel.setBackground(mData.mActivity.getResources().getDrawable(R.drawable.layer_list_underline_red));
+
+                tvCountyLabel.setTextColor(mData.mActivity.getResources().getColor(R.color.black));
+                tvCountyLabel.setBackground(mData.mActivity.getResources().getDrawable(R.color.white));
+                break;
+            case COUNTY:
+                tvProvinceLabel.setTextColor(mData.mActivity.getResources().getColor(R.color.black));
+                tvProvinceLabel.setBackground(mData.mActivity.getResources().getDrawable(R.color.white));
+                tvCityLabel.setTextColor(mData.mActivity.getResources().getColor(R.color.black));
+                tvCityLabel.setBackground(mData.mActivity.getResources().getDrawable(R.color.white));
+
+                tvCountyLabel.setTextColor(mData.mActivity.getResources().getColor(R.color.red));
+                tvCountyLabel.setBackground(mData.mActivity.getResources().getDrawable(R.drawable.layer_list_underline_red));
+                break;
+            default:
+                break;
         }
     }
 
@@ -220,7 +241,8 @@ public class AreaChooser {
         tvCityLabel.setText("请选择");
         tvCityLabel.setVisibility(View.GONE);
         tvProvinceLabel.setText("请选择");
-        setSelectedStatus(tvProvinceLabel);
+
+        setSelectedStatus(PROVINCE);
 
         //更新数据
         mAdapter.setData(mAreaDataList, mAreaLevel = PROVINCE);
@@ -292,32 +314,45 @@ public class AreaChooser {
     }
 
     /**
-     * 设置省（用于初始化显示）
-     * @param province 省
-     */
-    //TODO 功能待添加
-    private AreaChooser setArea(@NonNull Province province) {
-        return this;
-    }
-
-    /**
-     * 设置省市（用于初始化显示）
-     * @param province 省
-     * @param city 市
-     */
-    //TODO 功能待添加
-    private AreaChooser setArea(@NonNull Province province, @NonNull City city) {
-        return this;
-    }
-
-    /**
      * 设置省市县（用于初始化显示）
      * @param province 省
      * @param city 市
      * @param county 县
      */
-    //TODO 功能待添加
-    private AreaChooser setArea(@NonNull Province province, @NonNull City city, @NonNull County county) {
+    public AreaChooser setArea(Province province, City city, County county) {
+        if (province == null) {
+            return this;
+        }
+        for (int i = 0; i < mAreaDataList.size(); ++i) {
+            final Province curProvince = mAreaDataList.get(i).getArea();
+
+            if (curProvince.getCode().equals(province.getCode())) {
+                if (city == null) {
+                    setPosition(i, -1, -1);
+                    return this;
+                } else {
+                    for (int j = 0; j < curProvince.getCityList().size(); ++j) {
+                        final City curCity = curProvince.getCityList().get(j).getArea();
+
+                        if (curCity.getCode().equals(city.getCode())) {
+                            if (county == null) {
+                                setPosition(i, j, -1);
+                                return this;
+                            } else {
+                                for (int k = 0; k < curCity.getCountyList().size(); ++k) {
+                                    final County curCounty = curCity.getCountyList().get(k).getArea();
+
+                                    if (curCounty.getCode().equals(county.getCode())) {
+                                        setPosition(i, j, k);
+                                        return this;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         return this;
     }
 
@@ -326,9 +361,94 @@ public class AreaChooser {
      * @param postalCode 邮政编码
      */
     //TODO 功能待添加
-    private AreaChooser setPostalCode(@NonNull String postalCode) {
+    public AreaChooser setPostalCode(@NonNull String postalCode) {
         this.mData.mPostalCode = postalCode;
+
         return this;
+    }
+
+    /**
+     * 设置默认选中的位置
+     *
+     * @param provincePosition 选中的 省 Position
+     * @param cityPosition     选中的 市 Position
+     * @param countyPosition   选中的 县 Position
+     */
+    private void setPosition(int provincePosition, int cityPosition, int countyPosition) {
+        int areaLevel = UNKNOWN_AREA_LEVEL;
+
+        if (provincePosition != -1) {
+            areaLevel = PROVINCE;
+        }
+        if (cityPosition != -1) {
+            areaLevel = CITY;
+        }
+        if (countyPosition != -1) {
+            areaLevel = COUNTY;
+        }
+
+        Province province;
+        City city;
+        County county;
+
+        final List<Area> areaList;
+
+        switch (areaLevel) {
+            case PROVINCE:
+                province = mAreaDataList.get(provincePosition).getArea();
+                areaList = mAreaDataList;
+
+                tvProvinceLabel.setText(province.getName());
+                tvProvinceLabel.setVisibility(View.VISIBLE);
+
+                tvCityLabel.setText("请选择");
+                tvCityLabel.setVisibility(View.GONE);
+
+                tvCountyLabel.setText("请选择");
+                tvCountyLabel.setVisibility(View.GONE);
+
+                setSelectedStatus(PROVINCE);
+                break;
+            case CITY:
+                province = mAreaDataList.get(provincePosition).getArea();
+                city = province.getCityList().get(cityPosition).getArea();
+                areaList = province.getCityList();
+
+                tvProvinceLabel.setText(province.getName());
+                tvProvinceLabel.setVisibility(View.VISIBLE);
+
+                tvCityLabel.setText(city.getName());
+                tvCityLabel.setVisibility(View.VISIBLE);
+
+                tvCountyLabel.setText("请选择");
+                tvCountyLabel.setVisibility(View.GONE);
+
+                setSelectedStatus(CITY);
+                break;
+            case COUNTY:
+                province = mAreaDataList.get(provincePosition).getArea();
+                city = province.getCityList().get(cityPosition).getArea();
+                county = city.getCountyList().get(countyPosition).getArea();
+                areaList = city.getCountyList();
+
+                tvProvinceLabel.setText(province.getName());
+                tvProvinceLabel.setVisibility(View.VISIBLE);
+
+                tvCityLabel.setText(city.getName());
+                tvCityLabel.setVisibility(View.VISIBLE);
+
+                tvCountyLabel.setText(county.getName());
+                tvCountyLabel.setVisibility(View.VISIBLE);
+
+                setSelectedStatus(COUNTY);
+                break;
+            default:
+                areaList = null;
+                break;
+        }
+        mAdapter.setPosition(provincePosition, cityPosition, countyPosition);
+        mAdapter.setData(areaList, mAreaLevel = areaLevel);
+        mAdapter.notifyDataSetChanged();
     }
 
     /**

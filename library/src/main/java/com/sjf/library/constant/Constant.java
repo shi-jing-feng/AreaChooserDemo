@@ -14,6 +14,8 @@ public class Constant {
     /** 长按 */
     public static final int LONG_CLICK = 2;
 
+    /** 未知区域级别 */
+    public static final int UNKNOWN_AREA_LEVEL = 0;
     /** 省 */
     public static final int PROVINCE = 1;
     /** 市 */

@@ -197,6 +197,18 @@ public class AreaChooseAdapter extends RecyclerView.Adapter<AreaChooseAdapter.Ar
     }
 
     /**
+     * 设置
+     * @param provincePosition 选中的 省 位置
+     * @param cityPosition     选中的 市 位置
+     * @param countyPosition   选中的 县 位置
+     */
+    public void setPosition(int provincePosition, int cityPosition, int countyPosition) {
+        this.mProvincePosition = provincePosition;
+        this.mCityPosition = cityPosition;
+        this.mCountyPosition = countyPosition;
+    }
+
+    /**
      * 获取选中的省，市或县的位置
      * @param areaLevel  1 省的位置 2 市的位置 3 县的位置
      * @return 省，市或县的位置
