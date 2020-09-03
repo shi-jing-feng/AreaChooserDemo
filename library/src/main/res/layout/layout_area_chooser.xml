@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/iv_cancel"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="12dp"
+            android:padding="3dp"
+            android:src="@drawable/ic_cancel"
+            android:contentDescription="@string/取消" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="10dp"
+            android:text="@string/选择地区"
+            android:textColor="@color/black"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/tv_ensure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="8dp"
+            android:padding="2dp"
+            android:text="@string/确定"
+            android:visibility="gone" />
+
+    </FrameLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.2dp"
+        android:background="@color/light_grey" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="340dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_province_label"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:gravity="center"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:text="@string/请选择"
+                tools:background="@drawable/layer_list_underline"
+                tools:textColor="#FF0000" />
+
+            <TextView
+                android:id="@+id/tv_city_label"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:gravity="center"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:text="@string/请选择"
+                android:visibility="gone"
+                tools:background="@drawable/layer_list_underline"
+                tools:textColor="#FF0000" />
+
+            <TextView
+                android:id="@+id/tv_county_label"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:gravity="center"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:text="@string/请选择"
+                android:visibility="gone"
+                tools:background="@drawable/layer_list_underline"
+                tools:textColor="#FF0000" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.2dp"
+            android:background="@color/light_grey" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_area_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fadingEdge="none"
+            android:overScrollMode="never"
+            android:scrollbars="none"/>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -10,7 +10,7 @@ import java.lang.reflect.Type;
 /**
  * Json转换工具类
  */
-public class JsonUtils {
+public class JsonUtil {
 
     /**
      * 将对象准换为json字符串

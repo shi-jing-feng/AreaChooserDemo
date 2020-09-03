@@ -332,7 +332,7 @@ public class AreaUtil {
                         }
                     }
                 }
-                listener.onSuccess(provinces);
+                new Handler(Looper.getMainLooper()).post(() -> listener.onSuccess(provinces));
             } catch (Exception e) {
                 e.printStackTrace();
                 new Handler(Looper.getMainLooper()).post(() -> listener.onFailure(e));

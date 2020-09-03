@@ -1,5 +1,6 @@
 package com.sjf.library;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -11,12 +12,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,6 +30,7 @@ import com.sjf.library.entity.Province;
 import com.sjf.library.listener.OnChooseCompleteListener;
 import com.sjf.library.listener.OnChooseListener;
 import com.sjf.library.util.AreaUtil;
+import com.sjf.library.util.ResourceUtil;
 import com.sjf.library.util.SizeUtil;
 import com.sjf.library.util.WindowUtil;
 
@@ -49,6 +51,7 @@ import static com.sjf.library.constant.Constant.UNKNOWN_AREA_LEVEL;
  */
 public class AreaChooser {
 
+    private TextView tvTitle;
     private ImageView ivCancel;
     private TextView tvProvinceLabel;
     private TextView tvCityLabel;
@@ -70,17 +73,68 @@ public class AreaChooser {
     /** 地区级别 */
     private int mAreaLevel = PROVINCE;
 
+    /** 是否正在显示 */
+    private boolean mIsShowing = false;
+
     public AreaChooser(@NonNull Data data, @NonNull Listener listener) {
         this.mData = data;
         this.mListener = listener;
         this.mAreaDataList = data.mAreaDataList;
-        this.mParentView = data.mActivity.findViewById(android.R.id.content);
+        this.mParentView = data.activity.findViewById(android.R.id.content);
+        init();
     }
 
     /**
-     * 初始化处理收货地址选择区域点击事件
+     * 初始化
      */
-    private void initAreaAction() {
+    @SuppressLint("InflateParams")
+    private void init() {
+        final View content = LayoutInflater.from(mData.activity).inflate(R.layout.layout_area_chooser, null);
+
+        tvTitle = content.findViewById(R.id.tv_title);
+        ivCancel = content.findViewById(R.id.iv_cancel);
+        tvProvinceLabel = content.findViewById(R.id.tv_province_label);
+        tvCityLabel = content.findViewById(R.id.tv_city_label);
+        tvCountyLabel = content.findViewById(R.id.tv_county_label);
+        rvAreaList = content.findViewById(R.id.rv_area_list);
+
+        // 设置数据
+        if (mAreaDataList == null) {
+            try {
+                final InputStream inputStream = mData.activity.getAssets().open("json/province_city_county.json");
+
+                mAreaDataList = AreaUtil.getAreaLocalData(inputStream);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        // 设置标题
+        if (mData.title != null) {
+            tvTitle.setText(mData.title);
+        }
+        // 设置标签选中Tab为省级
+        setSelectedStatus(PROVINCE);
+
+        // 设置地区列表适配器
+        rvAreaList.setLayoutManager(new LinearLayoutManager(mData.activity));
+        rvAreaList.setAdapter(mAdapter = new AreaChooseAdapter(mData.activity, mData, mAreaDataList));
+
+        // 设置PopupWindow
+        mAreaChoicePopupWindow = new PopupWindow();
+        mAreaChoicePopupWindow.setContentView(content);
+        mAreaChoicePopupWindow.setWidth(WindowManager.LayoutParams.MATCH_PARENT);
+        mAreaChoicePopupWindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
+        mAreaChoicePopupWindow.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
+        mAreaChoicePopupWindow.setOutsideTouchable(true);
+        mAreaChoicePopupWindow.setFocusable(true);
+
+        initAction();
+    }
+
+    /**
+     * 初始化事件
+     */
+    private void initAction() {
         //设置为省级数据
         tvProvinceLabel.setOnClickListener(view -> {
             final List<Area> provinceList = mAreaDataList;
@@ -113,12 +167,13 @@ public class AreaChooser {
         });
         //取消
         ivCancel.setOnClickListener(view -> {
+            mIsShowing = false;
             mAreaChoicePopupWindow.dismiss();
         });
         //关闭窗口
         mAreaChoicePopupWindow.setOnDismissListener(() -> {
-            WindowUtil.setWindowOutsideBackground(mData.mActivity, 1f);
-            reset();
+            mIsShowing = false;
+            WindowUtil.setWindowOutsideBackground(mData.activity, 1f);
         });
 
         mAdapter.setOnItemEventListener((View view, Object data, int position, int flag) -> {
@@ -127,18 +182,23 @@ public class AreaChooser {
                     final Province province = (Province) data;
                     final List<Area> cityList = province.getCityList();
 
-                    tvCountyLabel.setText("请选择");
+                    tvCountyLabel.setText(ResourceUtil.getStringById(R.string.请选择));
                     tvCountyLabel.setVisibility(View.GONE);
                     tvProvinceLabel.setText(province.getName());
 
-                    if (mData.mLevel == PROVINCE || cityList == null || cityList.size() == 0) {
-                        mListener.mOnChooseCompleteListener.onComplete(province, null, null);
+                    if (mListener.mOnChooseListener != null) {
+                        mListener.mOnChooseListener.onChoose(province);
+                    }
+                    if (mData.level == PROVINCE || cityList == null || cityList.size() == 0) {
+                        if (mListener.mOnChooseCompleteListener != null) {
+                            mListener.mOnChooseCompleteListener.onComplete(this, province, null, null);
+                        }
 
                         mAreaChoicePopupWindow.dismiss();
                         return;
                     }
 
-                    tvCityLabel.setText("请选择");
+                    tvCityLabel.setText(ResourceUtil.getStringById(R.string.请选择));
                     setSelectedStatus(CITY);
                     tvCityLabel.setVisibility(View.VISIBLE);
 
@@ -152,18 +212,23 @@ public class AreaChooser {
 
                     tvCityLabel.setText(city.getName());
 
-                    if (mData.mLevel == CITY || countyList == null || countyList.size() == 0) {
-                        final int provincePosition = mAdapter.getPosition(PROVINCE);
-                        final Province province1 = mAreaDataList.get(provincePosition).getArea();
+                    if (mListener.mOnChooseListener != null) {
+                        mListener.mOnChooseListener.onChoose(city);
+                    }
+                    if (mData.level == CITY || countyList == null || countyList.size() == 0) {
+                        if (mListener.mOnChooseCompleteListener != null) {
+                            final int provincePosition = mAdapter.getPosition(PROVINCE);
+                            final Province province1 = mAreaDataList.get(provincePosition).getArea();
 
-                        mListener.mOnChooseCompleteListener.onComplete(province1, city, null);
+                            mListener.mOnChooseCompleteListener.onComplete(this, province1, city, null);
+                        }
 
                         mAreaChoicePopupWindow.dismiss();
                         return;
                     }
 
                     tvCityLabel.setText(city.getName());
-                    tvCountyLabel.setText("请选择");
+                    tvCountyLabel.setText(ResourceUtil.getStringById(R.string.请选择));
                     setSelectedStatus(COUNTY);
                     tvCountyLabel.setVisibility(View.VISIBLE);
 
@@ -176,13 +241,16 @@ public class AreaChooser {
 
                     tvCountyLabel.setText(county.getName());
 
+                    if (mListener.mOnChooseListener != null) {
+                        mListener.mOnChooseListener.onChoose(county);
+                    }
                     if (mListener.mOnChooseCompleteListener != null) {
                         final int provincePosition = mAdapter.getPosition(PROVINCE);
                         final int cityPosition = mAdapter.getPosition(CITY);
                         final Province province1 = mAreaDataList.get(provincePosition).getArea();
                         final City city1 = province1.getCityList().get(cityPosition).getArea();
 
-                        mListener.mOnChooseCompleteListener.onComplete(province1, city1, county);
+                        mListener.mOnChooseCompleteListener.onComplete(this, province1, city1, county);
                     }
 
                     mAreaChoicePopupWindow.dismiss();
@@ -204,13 +272,13 @@ public class AreaChooser {
         final int distance = SizeUtil.dp2px(-3F);
 
         gradientDrawable.setColor(Color.WHITE);
-        gradientDrawable.setStroke(SizeUtil.dp2px(2F), mData.mColor);
+        gradientDrawable.setStroke(SizeUtil.dp2px(2F), mData.color);
 
         layerDrawable.setLayerInset(0, distance, distance, distance, 0);
 
         switch (areaLevel) {
             case PROVINCE:
-                tvProvinceLabel.setTextColor(mData.mColor);
+                tvProvinceLabel.setTextColor(mData.color);
                 tvProvinceLabel.setBackground(layerDrawable);
 
                 tvCityLabel.setTextColor(Color.BLACK);
@@ -222,7 +290,7 @@ public class AreaChooser {
                 tvProvinceLabel.setTextColor(Color.BLACK);
                 tvProvinceLabel.setBackgroundColor(Color.WHITE);
 
-                tvCityLabel.setTextColor(mData.mColor);
+                tvCityLabel.setTextColor(mData.color);
                 tvCityLabel.setBackground(layerDrawable);
 
                 tvCountyLabel.setTextColor(Color.BLACK);
@@ -234,7 +302,7 @@ public class AreaChooser {
                 tvCityLabel.setTextColor(Color.BLACK);
                 tvCityLabel.setBackgroundColor(Color.WHITE);
 
-                tvCountyLabel.setTextColor(mData.mColor);
+                tvCountyLabel.setTextColor(mData.color);
                 tvCountyLabel.setBackground(layerDrawable);
                 break;
             default:
@@ -246,82 +314,133 @@ public class AreaChooser {
      * 重置
      */
     private void reset() {
-        tvCountyLabel.setText("请选择");
+        tvCountyLabel.setText(ResourceUtil.getStringById(R.string.请选择));
         tvCountyLabel.setVisibility(View.GONE);
-        tvCityLabel.setText("请选择");
+        tvCityLabel.setText(ResourceUtil.getStringById(R.string.请选择));
         tvCityLabel.setVisibility(View.GONE);
-        tvProvinceLabel.setText("请选择");
+        tvProvinceLabel.setText(ResourceUtil.getStringById(R.string.请选择));
 
         setSelectedStatus(PROVINCE);
 
         //更新数据
         mAdapter.setData(mAreaDataList, mAreaLevel = PROVINCE);
-        mAdapter.notifyDataSetChanged();
         mAdapter.reset();
+        mAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * 设置默认选中的位置
+     *
+     * @param provincePosition 选中的 省 Position
+     * @param cityPosition     选中的 市 Position
+     * @param countyPosition   选中的 县 Position
+     */
+    private void setPosition(int provincePosition, int cityPosition, int countyPosition) {
+        final int areaLevel;
+
+        if (countyPosition >= 0) {
+            areaLevel = COUNTY;
+        } else if (cityPosition >= 0) {
+            areaLevel = CITY;
+        } else if (provincePosition >= 0) {
+            areaLevel = PROVINCE;
+        } else {
+            areaLevel = UNKNOWN_AREA_LEVEL;
+        }
+
+        Province province;
+        City city;
+        County county;
+
+        final List<Area> areaList;
+
+        switch (areaLevel) {
+            case PROVINCE:
+                province = mAreaDataList.get(provincePosition).getArea();
+                areaList = mAreaDataList;
+
+                tvProvinceLabel.setText(province.getName());
+                tvProvinceLabel.setVisibility(View.VISIBLE);
+                tvCityLabel.setText(ResourceUtil.getStringById(R.string.请选择));
+                tvCityLabel.setVisibility(View.GONE);
+                tvCountyLabel.setText(ResourceUtil.getStringById(R.string.请选择));
+                tvCountyLabel.setVisibility(View.GONE);
+
+                setSelectedStatus(PROVINCE);
+                break;
+            case CITY:
+                province = mAreaDataList.get(provincePosition).getArea();
+                city = province.getCityList().get(cityPosition).getArea();
+                areaList = province.getCityList();
+
+                tvProvinceLabel.setText(province.getName());
+                tvProvinceLabel.setVisibility(View.VISIBLE);
+
+                tvCityLabel.setText(city.getName());
+                tvCityLabel.setVisibility(View.VISIBLE);
+
+                tvCountyLabel.setText(ResourceUtil.getStringById(R.string.请选择));
+                tvCountyLabel.setVisibility(View.GONE);
+
+                setSelectedStatus(CITY);
+                break;
+            case COUNTY:
+                province = mAreaDataList.get(provincePosition).getArea();
+                city = province.getCityList().get(cityPosition).getArea();
+                county = city.getCountyList().get(countyPosition).getArea();
+                areaList = city.getCountyList();
+
+                tvProvinceLabel.setText(province.getName());
+                tvProvinceLabel.setVisibility(View.VISIBLE);
+
+                tvCityLabel.setText(city.getName());
+                tvCityLabel.setVisibility(View.VISIBLE);
+
+                tvCountyLabel.setText(county.getName());
+                tvCountyLabel.setVisibility(View.VISIBLE);
+
+                setSelectedStatus(COUNTY);
+                break;
+            default:
+                areaList = null;
+                break;
+        }
+        mAdapter.setPosition(provincePosition, cityPosition, countyPosition);
+        mAdapter.setData(areaList, mAreaLevel = areaLevel);
+        mAdapter.notifyDataSetChanged();
     }
 
     /**
      * 显示
      */
     public void show() {
-        if (mAreaChoicePopupWindow != null) {
-            if (!mAreaChoicePopupWindow.isShowing()) {
-                WindowUtil.setWindowOutsideBackground(mData.mActivity, 0.4f);
-                mAreaChoicePopupWindow.showAtLocation(mParentView, Gravity.BOTTOM, 0, 0);
-            }
+        if (mIsShowing) {
             return;
         }
-
-        final LinearLayout llContent = new LinearLayout(mData.mActivity);
-
-        llContent.setOrientation(LinearLayout.VERTICAL);
-
-        //因为layout_area_choice根节点为merge(为了防止PopupWindow布局失效)所以必须绑定到root布局
-        final View content = LayoutInflater.from(mData.mActivity).inflate(R.layout.layout_area_choice, llContent, true);
-
-        ivCancel = content.findViewById(R.id.iv_cancel);
-        tvProvinceLabel = content.findViewById(R.id.tv_province_label);
-        tvCityLabel = content.findViewById(R.id.tv_city_label);
-        tvCountyLabel = content.findViewById(R.id.tv_county_label);
-        rvAreaList = content.findViewById(R.id.rv_area_list);
-
-        if (mAreaDataList == null) {
-            try {
-                final InputStream inputStream = mData.mActivity.getAssets().open("json/province_city_county.json");
-
-                mAreaDataList = AreaUtil.getAreaLocalData(inputStream);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        setSelectedStatus(PROVINCE);
-        mAdapter = new AreaChooseAdapter(mData, mAreaDataList);
-
-        rvAreaList.setLayoutManager(new LinearLayoutManager(mData.mActivity));
-        rvAreaList.setAdapter(mAdapter);
-
-        mAreaChoicePopupWindow = new PopupWindow();
-        mAreaChoicePopupWindow.setContentView(content);
-        mAreaChoicePopupWindow.setWidth(WindowManager.LayoutParams.MATCH_PARENT);
-        mAreaChoicePopupWindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
-        mAreaChoicePopupWindow.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
-        mAreaChoicePopupWindow.setOutsideTouchable(true);
-        mAreaChoicePopupWindow.setFocusable(true);
-        WindowUtil.setWindowOutsideBackground(mData.mActivity, 0.4f);
+        mIsShowing = true;
+        WindowUtil.setWindowOutsideBackground(mData.activity, 0.4f);
         mAreaChoicePopupWindow.showAtLocation(mParentView, Gravity.BOTTOM, 0, 0);
-
-        initAreaAction();
-
     }
 
     /**
      * 隐藏
      */
     public void hide() {
-        if (mAreaChoicePopupWindow != null) {
-            mAreaChoicePopupWindow.dismiss();
+        if (!mIsShowing) {
+            return;
         }
+        mIsShowing = false;
+        mAreaChoicePopupWindow.dismiss();
+    }
+
+    /**
+     * 设置标题文本
+     * @param title 标题文本
+     * @return Builder
+     */
+    public AreaChooser setTitle(@NonNull String title) {
+        tvTitle.setText(title);
+        return this;
     }
 
     /**
@@ -330,7 +449,7 @@ public class AreaChooser {
      * @param city 市
      * @param county 县
      */
-    public AreaChooser setArea(Province province, City city, County county) {
+    public AreaChooser setArea(@Nullable Province province, @Nullable City city, @Nullable County county) {
         if (province == null) {
             return this;
         }
@@ -365,90 +484,6 @@ public class AreaChooser {
             }
         }
         return this;
-    }
-
-    /**
-     * 设置默认选中的位置
-     *
-     * @param provincePosition 选中的 省 Position
-     * @param cityPosition     选中的 市 Position
-     * @param countyPosition   选中的 县 Position
-     */
-    private void setPosition(int provincePosition, int cityPosition, int countyPosition) {
-        int areaLevel = UNKNOWN_AREA_LEVEL;
-
-        if (provincePosition != -1) {
-            areaLevel = PROVINCE;
-        }
-        if (cityPosition != -1) {
-            areaLevel = CITY;
-        }
-        if (countyPosition != -1) {
-            areaLevel = COUNTY;
-        }
-
-        Province province;
-        City city;
-        County county;
-
-        final List<Area> areaList;
-
-        switch (areaLevel) {
-            case PROVINCE:
-                province = mAreaDataList.get(provincePosition).getArea();
-                areaList = mAreaDataList;
-
-                tvProvinceLabel.setText(province.getName());
-                tvProvinceLabel.setVisibility(View.VISIBLE);
-
-                tvCityLabel.setText("请选择");
-                tvCityLabel.setVisibility(View.GONE);
-
-                tvCountyLabel.setText("请选择");
-                tvCountyLabel.setVisibility(View.GONE);
-
-                setSelectedStatus(PROVINCE);
-                break;
-            case CITY:
-                province = mAreaDataList.get(provincePosition).getArea();
-                city = province.getCityList().get(cityPosition).getArea();
-                areaList = province.getCityList();
-
-                tvProvinceLabel.setText(province.getName());
-                tvProvinceLabel.setVisibility(View.VISIBLE);
-
-                tvCityLabel.setText(city.getName());
-                tvCityLabel.setVisibility(View.VISIBLE);
-
-                tvCountyLabel.setText("请选择");
-                tvCountyLabel.setVisibility(View.GONE);
-
-                setSelectedStatus(CITY);
-                break;
-            case COUNTY:
-                province = mAreaDataList.get(provincePosition).getArea();
-                city = province.getCityList().get(cityPosition).getArea();
-                county = city.getCountyList().get(countyPosition).getArea();
-                areaList = city.getCountyList();
-
-                tvProvinceLabel.setText(province.getName());
-                tvProvinceLabel.setVisibility(View.VISIBLE);
-
-                tvCityLabel.setText(city.getName());
-                tvCityLabel.setVisibility(View.VISIBLE);
-
-                tvCountyLabel.setText(county.getName());
-                tvCountyLabel.setVisibility(View.VISIBLE);
-
-                setSelectedStatus(COUNTY);
-                break;
-            default:
-                areaList = null;
-                break;
-        }
-        mAdapter.setPosition(provincePosition, cityPosition, countyPosition);
-        mAdapter.setData(areaList, mAreaLevel = areaLevel);
-        mAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -494,22 +529,22 @@ public class AreaChooser {
     }
 
     /**
-     * 设置选择区域完成监听器
-     * @param listener 监听器
-     * @return Builder
-     */
-    public AreaChooser setOnChooseCompleteListener(OnChooseCompleteListener listener) {
-        this.mListener.mOnChooseCompleteListener = listener;
-        return this;
-    }
-
-    /**
      * 选择区域监听器
      * @param listener 监听器
      * @return Builder
      */
     public AreaChooser setOnChooseListener(OnChooseListener listener) {
         this.mListener.mOnChooseListener = listener;
+        return this;
+    }
+
+    /**
+     * 设置选择区域完成监听器
+     * @param listener 监听器
+     * @return Builder
+     */
+    public AreaChooser setOnChooseCompleteListener(OnChooseCompleteListener listener) {
+        this.mListener.mOnChooseCompleteListener = listener;
         return this;
     }
 
@@ -522,7 +557,7 @@ public class AreaChooser {
         private Listener mListener = new Listener();
 
         public Builder(@NonNull Activity activity) {
-            this.mData.mActivity = activity;
+            this.mData.activity = activity;
         }
 
         /**
@@ -531,7 +566,7 @@ public class AreaChooser {
          * @return Builder
          */
         public Builder setLevel(@AreaLevel int level) {
-            this.mData.mLevel = level;
+            this.mData.level = level;
             return this;
         }
 
@@ -541,7 +576,17 @@ public class AreaChooser {
          * @return Builder
          */
         public Builder setThemeColor(@ColorInt int color) {
-            this.mData.mColor = color;
+            this.mData.color = color;
+            return this;
+        }
+
+        /**
+         * 设置标题文本
+         * @param title 标题文本
+         * @return Builder
+         */
+        public Builder setTitle(String title) {
+            this.mData.title = title;
             return this;
         }
 
@@ -602,11 +647,13 @@ public class AreaChooser {
     public static class Data {
 
         /** Context */
-        public Activity mActivity;
+        public Activity activity;
         /** 联动级别 默认3级联动（省市县）*/
-        public @AreaLevel int mLevel = COUNTY;
+        public @AreaLevel int level = COUNTY;
         /** 主题颜色 默认红色 */
-        public int mColor = Color.parseColor("#FF0000");
+        public int color = ResourceUtil.getColorById(R.color.red);
+        /** 标题文本 */
+        public String title = null;
         /** 省市县数据 */
         public List<Area> mAreaDataList;
 

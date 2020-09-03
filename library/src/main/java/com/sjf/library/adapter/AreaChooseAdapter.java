@@ -1,5 +1,6 @@
 package com.sjf.library.adapter;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,7 @@ import com.sjf.library.entity.County;
 import com.sjf.library.entity.Province;
 import com.sjf.library.listener.OnItemEventListener;
 
+import java.net.PortUnreachableException;
 import java.util.List;
 
 import static com.sjf.library.constant.Constant.CLICK;
@@ -31,6 +33,7 @@ import static com.sjf.library.constant.Constant.PROVINCE;
  */
 public class AreaChooseAdapter extends RecyclerView.Adapter<AreaChooseAdapter.AreaChooseViewHolder> {
 
+    private Context mContext;
     private AreaChooser.Data mData;
     private List<Area> mDataList;
     private OnItemEventListener mOnItemEventListener;
@@ -38,13 +41,14 @@ public class AreaChooseAdapter extends RecyclerView.Adapter<AreaChooseAdapter.Ar
     /** 地区级别 */
     private int mAreaLevel = PROVINCE;
     /** 选中的省的位置 */
-    private int mProvincePosition = -1;
+    private int mCurProvincePosition = -1;
     /** 选中的市的位置 */
-    private int mCityPosition = -1;
+    private int mCurCityPosition = -1;
     /** 选中的县的位置 */
-    private int mCountyPosition = -1;
+    private int mCurCountyPosition = -1;
 
-    public AreaChooseAdapter(@NonNull AreaChooser.Data data, List<Area> dataList) {
+    public AreaChooseAdapter(Context context, @NonNull AreaChooser.Data data, List<Area> dataList) {
+        this.mContext = context;
         this.mData = data;
         this.mDataList = dataList;
     }
@@ -52,7 +56,7 @@ public class AreaChooseAdapter extends RecyclerView.Adapter<AreaChooseAdapter.Ar
     @Override
     @NonNull
     public AreaChooseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        final View rootView = LayoutInflater.from(mData.mActivity).inflate(R.layout.adapter_item_area_name, parent, false);
+        final View rootView = LayoutInflater.from(mData.activity).inflate(R.layout.adapter_item_area_name, parent, false);
 
         return new AreaChooseViewHolder(rootView);
     }
@@ -75,19 +79,19 @@ public class AreaChooseAdapter extends RecyclerView.Adapter<AreaChooseAdapter.Ar
             case PROVINCE:
                 final Province province = mDataList.get(position).getArea();
 
-                currentPosition = mProvincePosition;
+                currentPosition = mCurProvincePosition;
                 holder.tvAreaName.setText(province.getName());
                 break;
             case CITY:
                 final City city = mDataList.get(position).getArea();
 
-                currentPosition = mCityPosition;
+                currentPosition = mCurCityPosition;
                 holder.tvAreaName.setText(city.getName());
                 break;
             case COUNTY:
                 final County county = mDataList.get(position).getArea();
 
-                currentPosition = mCountyPosition;
+                currentPosition = mCurCountyPosition;
                 holder.tvAreaName.setText(county.getName());
                 break;
             default:
@@ -96,7 +100,8 @@ public class AreaChooseAdapter extends RecyclerView.Adapter<AreaChooseAdapter.Ar
 
         //判断当前显示的位置是否是点击的位置
         if (currentPosition == position) {
-            holder.tvAreaName.setTextColor(mData.mColor);
+            holder.tvAreaName.setTextColor(mData.color);
+            holder.ivAreaSelected.setColorFilter(mData.color);
             holder.ivAreaSelected.setVisibility(View.VISIBLE);
         } else {
             holder.tvAreaName.setTextColor(Color.BLACK);
@@ -114,14 +119,14 @@ public class AreaChooseAdapter extends RecyclerView.Adapter<AreaChooseAdapter.Ar
             switch (mAreaLevel) {
                 case PROVINCE:
                     final Province province = mDataList.get(position).getArea();
-                    final int previousProvincePosition = mProvincePosition;
+                    final int previousProvincePosition = mCurProvincePosition;
 
-                    mProvincePosition = position;
-                    mCityPosition = -1;
-                    mCountyPosition = -1;
+                    mCurProvincePosition = position;
+                    mCurCityPosition = -1;
+                    mCurCountyPosition = -1;
 
-                    if (previousProvincePosition != mProvincePosition) {
-                        notifyItemChanged(mProvincePosition);
+                    if (previousProvincePosition != mCurProvincePosition) {
+                        notifyItemChanged(mCurProvincePosition);
                         if (previousProvincePosition != -1) {
                             notifyItemChanged(previousProvincePosition);
                         }
@@ -132,13 +137,13 @@ public class AreaChooseAdapter extends RecyclerView.Adapter<AreaChooseAdapter.Ar
                     break;
                 case CITY:  //市
                     final City city = mDataList.get(position).getArea();
-                    final int previousCityPosition = mCityPosition;
+                    final int previousCityPosition = mCurCityPosition;
 
-                    mCityPosition = position;
-                    mCountyPosition = -1;
+                    mCurCityPosition = position;
+                    mCurCountyPosition = -1;
 
-                    if (previousCityPosition != mCityPosition) {
-                        notifyItemChanged(mCityPosition);
+                    if (previousCityPosition != mCurCityPosition) {
+                        notifyItemChanged(mCurCityPosition);
                         if (previousCityPosition != -1) {
                             notifyItemChanged(previousCityPosition);
                         }
@@ -149,12 +154,12 @@ public class AreaChooseAdapter extends RecyclerView.Adapter<AreaChooseAdapter.Ar
                     break;
                 case COUNTY:  //县
                     final County county = mDataList.get(position).getArea();
-                    final int previousCountyPosition = mCountyPosition;
+                    final int previousCountyPosition = mCurCountyPosition;
 
-                    mCountyPosition = position;
+                    mCurCountyPosition = position;
 
-                    if (previousCountyPosition != mCountyPosition) {
-                        notifyItemChanged(mCountyPosition);
+                    if (previousCountyPosition != mCurCountyPosition) {
+                        notifyItemChanged(mCurCountyPosition);
                         if (previousCountyPosition != -1) {
                             notifyItemChanged(previousCountyPosition);
                         }
@@ -188,25 +193,15 @@ public class AreaChooseAdapter extends RecyclerView.Adapter<AreaChooseAdapter.Ar
     }
 
     /**
-     * 重置
-     */
-    public void reset() {
-        mAreaLevel = PROVINCE;
-        mProvincePosition = -1;
-        mCityPosition = -1;
-        mCountyPosition = -1;
-    }
-
-    /**
-     * 设置
+     * 设置 省市县 的位置
      * @param provincePosition 选中的 省 位置
      * @param cityPosition     选中的 市 位置
      * @param countyPosition   选中的 县 位置
      */
     public void setPosition(int provincePosition, int cityPosition, int countyPosition) {
-        this.mProvincePosition = provincePosition;
-        this.mCityPosition = cityPosition;
-        this.mCountyPosition = countyPosition;
+        this.mCurProvincePosition = provincePosition;
+        this.mCurCityPosition = cityPosition;
+        this.mCurCountyPosition = countyPosition;
     }
 
     /**
@@ -216,13 +211,23 @@ public class AreaChooseAdapter extends RecyclerView.Adapter<AreaChooseAdapter.Ar
      */
     public int getPosition(int areaLevel) {
         if (areaLevel == PROVINCE) {
-            return mProvincePosition;
+            return mCurProvincePosition;
         } else if (areaLevel == CITY) {
-            return mCityPosition;
+            return mCurCityPosition;
         } else if (areaLevel == COUNTY) {
-            return mCountyPosition;
+            return mCurCountyPosition;
         }
         return -1;
+    }
+
+    /**
+     * 重置
+     */
+    public void reset() {
+        mAreaLevel = PROVINCE;
+        mCurProvincePosition = -1;
+        mCurCityPosition = -1;
+        mCurCountyPosition = -1;
     }
 
     /**

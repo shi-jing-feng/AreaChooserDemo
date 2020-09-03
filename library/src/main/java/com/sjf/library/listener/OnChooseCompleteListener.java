@@ -1,7 +1,9 @@
 package com.sjf.library.listener;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.sjf.library.AreaChooser;
 import com.sjf.library.entity.City;
 import com.sjf.library.entity.County;
 import com.sjf.library.entity.Province;
@@ -16,10 +18,11 @@ public interface OnChooseCompleteListener {
 
     /**
      * 选中的省市县数据
+     * @param areaChooser AreaChooser
      * @param province 选择的省
      * @param city 选择的市
      * @param county 选择的县
      */
-    void onComplete(@Nullable Province province, @Nullable City city, @Nullable County county);
+    void onComplete(@NonNull AreaChooser areaChooser, @Nullable Province province, @Nullable City city, @Nullable County county);
 
 }

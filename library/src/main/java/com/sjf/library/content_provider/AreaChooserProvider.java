@@ -26,7 +26,6 @@ public class AreaChooserProvider extends ContentProvider {
      */
     @Override
     public boolean onCreate() {
-        Log.e("测试", "AreaChooserProvider onCreate Context: " + (getContext() == null ? "null" : getContext().getClass().getName()));
         Global.sContext = getContext();
         return true;
     }
