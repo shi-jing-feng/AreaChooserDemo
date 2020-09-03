@@ -3,21 +3,19 @@ package com.sjf.areachooserdemo;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.sjf.library.AreaChooser;
-import com.sjf.library.entity.Area;
-import com.sjf.library.entity.City;
-import com.sjf.library.entity.County;
-import com.sjf.library.entity.Province;
-import com.sjf.library.listener.OnChooseListener;
-import com.sjf.library.util.ResourceUtil;
+import com.shijingfeng.area_chooser.AreaChooser;
+import com.shijingfeng.area_chooser.entity.Area;
+import com.shijingfeng.area_chooser.entity.City;
+import com.shijingfeng.area_chooser.entity.County;
+import com.shijingfeng.area_chooser.entity.Province;
+import com.shijingfeng.area_chooser.util.ResourceUtil;
 
-import static com.sjf.library.constant.Constant.CITY;
-import static com.sjf.library.constant.Constant.COUNTY;
-import static com.sjf.library.constant.Constant.PROVINCE;
+import static com.shijingfeng.area_chooser.constant.Constant.CITY;
+import static com.shijingfeng.area_chooser.constant.Constant.COUNTY;
+import static com.shijingfeng.area_chooser.constant.Constant.PROVINCE;
 
 public class MainActivity extends AppCompatActivity {
 

@@ -1,0 +1,72 @@
+apply plugin: 'com.android.library'
+//推荐放在module的gradle依赖文件的开头
+apply plugin: 'com.novoda.bintray-release'
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.3"
+
+
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    testImplementation 'junit:junit:4.13'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    //Design设计库
+    implementation 'com.google.android.material:material:1.2.1'
+    //Gson  Json解析框架
+    implementation 'com.google.code.gson:gson:2.8.6'
+}
+
+/**
+ * 1. 首先创建账号 (https://bintray.com/)
+ * 2. 在网站上创建 Repository 和 Package(属于 Repository)
+ * 3. 配置代码 (对gradle有要求, 参考本工程 gradle-wrapper.properties, build.gradle(工程) build.gradle(Module))
+ */
+
+//推荐放在module的gradle依赖文件的最后面
+publish {
+    //userOrg这个是用户的组织，我们创建的是个人帐号，也就是我们的用户名（后续会介绍，必须一致，改成你自己的bintrayName）
+    userOrg = 'shijingfeng2019'
+    // 仓库名 (对应 bintray 网站的 Repository, 注: 第一次上传必须先在网站创建 Repository)
+    repoName = 'maven'
+    //我们的组id 类比'com.github.bumptech.glide:glide:3.7.0' 中的 com.github.bumptech.glide 这一部分
+    groupId = 'com.shijingfeng'
+    //原型id 类比'com.github.bumptech.glide:glide:3.7.0' 中的glide这一部分 (对应 bintray 网站的 Package, 注: 第一次上传必须先在网站创建 Package)
+    artifactId = 'AreaChooser'
+    //版本号 类比'com.github.bumptech.glide:glide:3.7.0' 中的3.7.0 这一部分。很重要，我们在更新aar文件的时候需要提升版本号，类似更新apk
+    publishVersion = '1.0'
+    //描述，大致介绍自己的类库
+    desc = '省市县三级联动选择器'
+    //网址，可以写自己的github项目页面等
+    website = 'https://gitee.com/shijingfeng2019/AreaChooserDemo'
+}

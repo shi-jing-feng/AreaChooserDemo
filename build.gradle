@@ -2,23 +2,34 @@
 
 buildscript {
     repositories {
+        maven {
+            url 'https://dl.bintray.com/novoda-oss/snapshots/'
+        }
         google()
         jcenter()
-        
+
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.1'
-        
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        classpath 'com.android.tools.build:gradle:3.4.0'
+        classpath 'com.novoda:bintray-release:0.9.2'
     }
 }
 
 allprojects {
     repositories {
+        maven {
+            url 'https://dl.bintray.com/novoda-oss/snapshots/'
+        }
         google()
         jcenter()
-        
+    }
+    //加上这些
+    tasks.withType(Javadoc) {
+        options {
+            encoding "UTF-8"
+            charSet 'UTF-8'
+            links "http://docs.oracle.com/javase/7/docs/api"
+        }
     }
 }
 
