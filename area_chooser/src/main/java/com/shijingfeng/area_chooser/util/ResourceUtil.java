@@ -11,7 +11,7 @@ import com.shijingfeng.area_chooser.global.Global;
  * Date: 2020/9/3 13:59
  * Description:
  *
- * @author ShiJingFeng
+ * Author: ShiJingFeng
  */
 public class ResourceUtil {
 

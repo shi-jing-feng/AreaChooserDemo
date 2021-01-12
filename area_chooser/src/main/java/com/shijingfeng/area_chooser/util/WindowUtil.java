@@ -13,6 +13,8 @@ public class WindowUtil {
 
     /**
      * 设置窗口外部背景透明度
+     * @param context Activity
+     * @param bgAlpha 透明度 (从0.0 到 1.0, 逐渐变得不透明)
      */
     public static void setWindowOutsideBackground(@NonNull Activity context, float bgAlpha) {
         Window window = context.getWindow();

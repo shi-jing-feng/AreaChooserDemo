@@ -8,7 +8,7 @@ import android.util.Log;
  * Date: 2020/5/14 9:52
  * Description:
  *
- * @author ShiJingFeng
+ * Author: ShiJingFeng
  */
 public class App extends Application {
 

@@ -7,7 +7,7 @@ import android.content.res.Resources;
  * Date: 2020/3/13 10:42
  * Description:
  *
- * @author ShiJingFeng
+ * Author: ShiJingFeng
  */
 public class SizeUtil {
 

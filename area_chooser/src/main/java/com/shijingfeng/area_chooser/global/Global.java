@@ -8,7 +8,7 @@ import android.content.Context;
  * Date: 2020/5/14 9:27
  * Description:
  *
- * @author ShiJingFeng
+ * Author: ShiJingFeng
  */
 public class Global {
 

@@ -6,27 +6,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Function: 市实体类
+ * Function: 省实体类
  *
- * @author shijingfeng
- * @date 19-1-17
+ * Author: shijingfeng
+ * Date: 19-1-17
  */
-public class City extends Area {
+public class Province extends Area {
 
-    /** 市邮政编码 */
+    /** 省邮政编码 */
     @SerializedName("code")
     private String code = "";
 
-    /** 市名称 */
+    /** 省名称 */
     @SerializedName("name")
     private String name = "";
 
     /**
-     * 县列表
-     * 注意抽象类无法序列化，需自行处理 (参考 {@link com.shijingfeng.area_chooser.util.AreaUtil})
+     * 市列表
+     * 注意抽象类无法使用 Gson 序列化，需自行处理 (参考 {@link com.shijingfeng.area_chooser.util.AreaUtil})
      */
-    @SerializedName("areaList")
-    private List<Area> countyList = new ArrayList<>();
+    @SerializedName("cityList")
+    private List<Area> cityList = new ArrayList<>();
 
     public String getCode() {
         return code;
@@ -44,11 +44,11 @@ public class City extends Area {
         this.name = name;
     }
 
-    public List<Area> getCountyList() {
-        return countyList;
+    public List<Area> getCityList() {
+        return cityList;
     }
 
-    public void setCountyList(List<Area> countyList) {
-        this.countyList = countyList;
+    public void setCityList(List<Area> cityList) {
+        this.cityList = cityList;
     }
 }

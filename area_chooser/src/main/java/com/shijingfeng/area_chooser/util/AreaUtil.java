@@ -195,6 +195,7 @@ public class AreaUtil {
      * @param inputStream Json数据文件输入流
      * @param entityStructure 实体类结构
      * @param listener 结果监听器
+     * @return 线程
      */
     public static Thread getAreaLocalData( final InputStream inputStream, @Nullable final EntityStructure entityStructure, @NonNull final OnResultListener<List<Area>> listener) {
         final Thread thread = new Thread(() -> {

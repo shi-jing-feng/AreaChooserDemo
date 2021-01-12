@@ -36,6 +36,7 @@ public abstract class Area {
 
     /**
      *  获取区域
+     * @param <T> Area
      * @return 区域
      */
     public <T extends Area> T getArea() {

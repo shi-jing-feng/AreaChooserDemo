@@ -5,7 +5,7 @@ package com.shijingfeng.area_chooser.entity;
  * Date: 2020/5/13 11:42
  * Description:
  *
- * @author ShiJingFeng
+ * Author: ShiJingFeng
  */
 public class EntityStructure {
 

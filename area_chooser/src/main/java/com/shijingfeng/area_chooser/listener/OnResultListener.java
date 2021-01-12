@@ -7,7 +7,7 @@ import androidx.annotation.Nullable;
  * Date: 2020/5/8 10:55
  * Description:
  *
- * @author ShiJingFeng
+ * Author: ShiJingFeng
  */
 public interface OnResultListener<T> {
 

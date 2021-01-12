@@ -5,8 +5,8 @@ import com.google.gson.annotations.SerializedName;
 /**
  * Function: 县实体类
  *
- * @author shijingfeng
- * @date 19-1-17
+ * Author: shijingfeng
+ * Date: 19-1-17
  */
 public class County extends Area {
 

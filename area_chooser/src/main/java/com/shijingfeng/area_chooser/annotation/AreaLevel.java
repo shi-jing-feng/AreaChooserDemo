@@ -17,7 +17,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
  * Function: 区域级别
  * Date: 2020/5/8 10:37
  * Description:
- * @author ShiJingFeng
+ * Author: ShiJingFeng
  */
 @IntDef({
     // 省级

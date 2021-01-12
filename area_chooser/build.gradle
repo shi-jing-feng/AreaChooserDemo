@@ -1,16 +1,28 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
+
+ext {
+    artifactIdName = 'area_chooser'
+    publishVersionName = '1.0.0'
+}
+
+// 远程依赖打包
+apply from: "${rootDir.path}${File.separator}bintray.gradle"
 
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
+
+
     defaultConfig {
-        applicationId "com.sjf.areachooserdemo"
         minSdkVersion 19
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -21,15 +33,22 @@ android {
         sourceCompatibility = 1.8
         targetCompatibility = 1.8
     }
+
+    lintOptions {
+        abortOnError false
+    }
+
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-    implementation project(':area_chooser')
+    //Design设计库
+    implementation 'com.google.android.material:material:1.2.1'
+    //Gson  Json解析框架
+    implementation 'com.google.code.gson:gson:2.8.6'
 }

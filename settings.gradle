@@ -1,2 +1,3 @@
-include ':app', ':areachooser'
+include ':app'
+include ':area_chooser'
 rootProject.name='AreaChooserDemo'

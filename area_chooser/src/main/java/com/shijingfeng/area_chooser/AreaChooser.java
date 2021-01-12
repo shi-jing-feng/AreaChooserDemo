@@ -449,6 +449,7 @@ public class AreaChooser {
      * @param province 省
      * @param city 市
      * @param county 县
+     * @return AreaChooser
      */
     public AreaChooser setArea(@Nullable Province province, @Nullable City city, @Nullable County county) {
         if (province == null) {

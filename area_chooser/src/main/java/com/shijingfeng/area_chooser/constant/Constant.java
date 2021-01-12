@@ -5,7 +5,7 @@ package com.shijingfeng.area_chooser.constant;
  * Author: ShiJingFeng
  * Date: 2019/10/30 20:03
  * Description:
- * @author ShiJingFeng
+ * Author: ShiJingFeng
  */
 public class Constant {
 
