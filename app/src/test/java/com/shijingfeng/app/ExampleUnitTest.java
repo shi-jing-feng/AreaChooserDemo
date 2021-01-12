@@ -1,4 +1,4 @@
-package com.sjf.areachooserdemo;
+package com.shijingfeng.app;
 
 import org.junit.Test;
 

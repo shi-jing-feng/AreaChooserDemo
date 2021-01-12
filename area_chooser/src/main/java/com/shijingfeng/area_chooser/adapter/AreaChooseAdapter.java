@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.shijingfeng.area_chooser.AreaChooser;
-import com.sjf.library.R;
+import com.shijingfeng.library.R;
 import com.shijingfeng.area_chooser.entity.Area;
 import com.shijingfeng.area_chooser.entity.City;
 import com.shijingfeng.area_chooser.entity.County;

@@ -1,4 +1,4 @@
-package com.sjf.library;
+package com.shijingfeng.library;
 
 import org.junit.Test;
 

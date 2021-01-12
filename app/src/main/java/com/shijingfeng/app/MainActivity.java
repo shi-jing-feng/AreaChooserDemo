@@ -1,4 +1,4 @@
-package com.sjf.areachooserdemo;
+package com.shijingfeng.app;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;

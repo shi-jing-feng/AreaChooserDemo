@@ -1,4 +1,4 @@
-package com.sjf.library;
+package com.shijingfeng.app;
 
 import android.content.Context;
 
@@ -22,6 +22,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        assertEquals("com.sjf.library.test", appContext.getPackageName());
+        assertEquals("com.shijingfeng.app", appContext.getPackageName());
     }
 }

@@ -33,7 +33,7 @@ import com.shijingfeng.area_chooser.util.AreaUtil;
 import com.shijingfeng.area_chooser.util.ResourceUtil;
 import com.shijingfeng.area_chooser.util.SizeUtil;
 import com.shijingfeng.area_chooser.util.WindowUtil;
-import com.sjf.library.R;
+import com.shijingfeng.library.R;
 
 import java.io.IOException;
 import java.io.InputStream;
