@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.shijingfeng.area_chooser.adapter.AreaChooseAdapter;
 import com.shijingfeng.area_chooser.annotation.AreaLevel;
+import com.shijingfeng.area_chooser.constant.Constant;
 import com.shijingfeng.area_chooser.entity.Area;
 import com.shijingfeng.area_chooser.entity.City;
 import com.shijingfeng.area_chooser.entity.County;
@@ -135,6 +137,7 @@ public class AreaChooser {
     /**
      * 初始化事件
      */
+    @SuppressLint("NotifyDataSetChanged")
     private void initAction() {
         //设置为省级数据
         tvProvinceLabel.setOnClickListener(view -> {
@@ -314,6 +317,7 @@ public class AreaChooser {
     /**
      * 重置
      */
+    @SuppressLint("NotifyDataSetChanged")
     private void reset() {
         tvCountyLabel.setText(ResourceUtil.getStringById(R.string.请选择));
         tvCountyLabel.setVisibility(View.GONE);
@@ -336,6 +340,7 @@ public class AreaChooser {
      * @param cityPosition     选中的 市 Position
      * @param countyPosition   选中的 县 Position
      */
+    @SuppressLint("NotifyDataSetChanged")
     private void setPosition(int provincePosition, int cityPosition, int countyPosition) {
         final int areaLevel;
 
@@ -528,6 +533,99 @@ public class AreaChooser {
         }
 
         return areaList;
+    }
+
+    /**
+     * 获取 省
+     *
+     * @param provinceCode 省代码
+     * @return 省
+     */
+    @Nullable
+    public Province getProvince(@NonNull String provinceCode) {
+        if (TextUtils.isEmpty(provinceCode)
+                || mAreaDataList == null
+                || mAreaDataList.isEmpty()) {
+            return null;
+        }
+        if (mAreaDataList.get(0).getAreaLevel() != Constant.PROVINCE) {
+            return null;
+        }
+        for (Area curArea : mAreaDataList) {
+            final Province curProvince = curArea.getArea();
+
+            if (TextUtils.equals(curProvince.getCode(), provinceCode)) {
+                return curProvince;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取 市
+     *
+     * @param provinceCode 省代码
+     * @param cityCode 市代码
+     * @return 市
+     */
+    @Nullable
+    public City getCity(@NonNull String provinceCode, @NonNull String cityCode) {
+        final Province province;
+        final List<Area> cityList;
+
+        province = getProvince(provinceCode);
+        if (province == null) {
+            return null;
+        }
+        cityList = province.getCityList();
+        if (cityList == null || cityList.isEmpty()) {
+            return null;
+        }
+        if (cityList.get(0).getAreaLevel() != Constant.CITY) {
+            return null;
+        }
+        for (Area curArea : cityList) {
+            final City curCity = curArea.getArea();
+
+            if (TextUtils.equals(curCity.getCode(), cityCode)) {
+                return curCity;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取 县
+     *
+     * @param provinceCode 省代码
+     * @param cityCode 市代码
+     * @param countyCode 县代码
+     * @return 县
+     */
+    @Nullable
+    public County getCounty(@NonNull String provinceCode, @NonNull String cityCode, @NonNull String countyCode) {
+        final City city;
+        final List<Area> countyList;
+
+        city = getCity(provinceCode, cityCode);
+        if (city == null) {
+            return null;
+        }
+        countyList = city.getCountyList();
+        if (countyList == null || countyList.isEmpty()) {
+            return null;
+        }
+        if (countyList.get(0).getAreaLevel() != Constant.COUNTY) {
+            return null;
+        }
+        for (Area curArea : countyList) {
+            final County curCounty = curArea.getArea();
+
+            if (TextUtils.equals(curCounty.getCode(), countyCode)) {
+                return curCounty;
+            }
+        }
+        return null;
     }
 
     /**

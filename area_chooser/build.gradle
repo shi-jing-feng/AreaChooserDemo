@@ -1,20 +1,11 @@
 apply plugin: 'com.android.library'
 
-ext {
-    artifactIdName = 'area_chooser'
-    publishVersionName = '1.0.0'
-}
-
-// 远程依赖打包
-apply from: "${rootDir.path}${File.separator}bintray.gradle"
-
 android {
     compileSdkVersion 30
-    buildToolsVersion "30.0.2"
-
+    buildToolsVersion "30.0.3"
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -29,15 +20,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    //开启Java8
     compileOptions {
+        encoding = 'UTF-8'
         sourceCompatibility = 1.8
         targetCompatibility = 1.8
     }
-
-    lintOptions {
-        abortOnError false
-    }
-
 }
 
 dependencies {
